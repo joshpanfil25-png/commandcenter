@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import type { BufferAttribute } from 'three'
 
 export type OrbState = 'idle' | 'listening' | 'processing' | 'done'
 
@@ -237,7 +238,7 @@ export default function Orb({ state }: OrbProps) {
         sphere.rotation.x = Math.sin(t * 0.06) * 0.09
 
         // Update particles
-        const pos = pGeo.attributes.position as THREE.BufferAttribute
+        const pos = pGeo.attributes.position as BufferAttribute
         for (let i = 0; i < COUNT; i++) {
           const d = pData[i]
           d.theta += d.speed * 0.0025 * (1 + activityVal * 2.5)
