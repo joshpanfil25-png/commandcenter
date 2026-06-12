@@ -4,11 +4,13 @@
 @tailwind utilities;
 
 :root {
-  --cc-bg: #050d1a;
+  --cc-bg: #040912;
   --cc-surface: #0a1628;
   --cc-surface2: #0f1f38;
   --cc-border: #1a3050;
   --cc-cyan: #00e5ff;
+  --cc-mint: #4dffc3;
+  --cc-mint-soft: rgba(77, 255, 195, 0.7);
   --cc-blue: #1a6bff;
   --cc-violet: #8b5cf6;
   --cc-text: #c8d8f0;
@@ -28,9 +30,9 @@ html, body {
 
 body {
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(26, 107, 255, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 8%, rgba(77, 255, 195, 0.05) 0%, transparent 55%),
     radial-gradient(ellipse at 80% 100%, rgba(0, 229, 255, 0.04) 0%, transparent 55%),
-    #050d1a;
+    var(--cc-bg);
 }
 
 /* Glassmorphism */
@@ -91,21 +93,53 @@ body {
 .cc-input::placeholder { color: var(--cc-muted); }
 .cc-input option { background: #0a1628; color: var(--cc-text); }
 
+/* ── Delegation centerpiece ──────────────────────────────────────────────── */
+
+/* Sized stage for the WebGL canvas — the Orb fills width/height of this box,
+   so it MUST have explicit dimensions or the canvas collapses to zero. */
+.orb-stage {
+  width: clamp(260px, 42vw, 400px);
+  height: clamp(260px, 42vw, 400px);
+}
+
+/* Sleek glassy input bar that reads as part of the same holographic system. */
+.orb-input {
+  position: relative;
+  border-radius: 9999px;
+  background: rgba(10, 22, 40, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(77, 255, 195, 0.22);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.orb-input:focus-within {
+  border-color: rgba(77, 255, 195, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(77, 255, 195, 0.14),
+    0 0 24px rgba(77, 255, 195, 0.18),
+    inset 0 0 20px rgba(77, 255, 195, 0.06);
+}
+.orb-input input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cc-text);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  text-align: center;
+  padding: 1rem 1.5rem;
+}
+.orb-input input::placeholder { color: var(--cc-muted); }
+
 /* Status pills */
-.pill-active {
-  background: rgba(0, 229, 255, 0.08);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  color: var(--cc-cyan);
-}
-.pill-paused {
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  color: #a78bfa;
-}
-.pill-done {
-  background: rgba(74, 101, 133, 0.08);
-  border: 1px solid rgba(74, 101, 133, 0.25);
-  color: var(--cc-muted);
+.pill-mint {
+  background: rgba(77, 255, 195, 0.1);
+  border: 1px solid rgba(77, 255, 195, 0.28);
+  color: var(--cc-mint);
 }
 .pill-tag {
   background: rgba(26, 107, 255, 0.1);
@@ -147,3 +181,13 @@ body {
   100% { opacity: 0; transform: scale(0.96) translateX(12px); }
 }
 .task-completing { animation: checkDone 0.38s ease-out forwards; }
+
+/* Elegant submit confirmation — fades in, holds, fades out over its lifetime
+   (matches the 3.8s removal timer in DelegationInput). */
+@keyframes toastInOut {
+  0%   { opacity: 0; transform: translateY(4px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  82%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-2px); }
+}
+.cc-toast { animation: toastInOut 3.8s ease-in-out forwards; }

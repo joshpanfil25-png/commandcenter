@@ -28,17 +28,6 @@ const tabs = [
       </svg>
     ),
   },
-  {
-    href: '/progress',
-    label: 'Progress',
-    short: 'PROG',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <path d="M3 20l4-7 4 3.5 4-6 4 3.5" />
-        <path d="M3 3v17h18" strokeOpacity="0.5" />
-      </svg>
-    ),
-  },
 ]
 
 export default function Nav() {

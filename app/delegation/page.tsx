@@ -3,65 +3,52 @@
 import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import DelegationInput from '@/components/delegation/DelegationInput'
-import type { OrbState } from '@/components/delegation/Orb'
 import type { Task } from '@/lib/types'
 
 const Orb = dynamic(() => import('@/components/delegation/Orb'), { ssr: false })
 
-const STATE_LABELS: Record<OrbState, string> = {
-  idle: 'Awaiting delegation',
-  listening: 'Listening...',
-  processing: 'Processing...',
-  done: 'Captured',
-}
-
 export default function DelegationPage() {
-  const [orbState, setOrbState] = useState<OrbState>('idle')
+  const [active, setActive] = useState(false)
+  const [pulse, setPulse] = useState(0)
   const [recent, setRecent] = useState<Task[]>([])
 
   const handleTaskAdded = useCallback((task: Task) => {
-    setRecent(prev => [task, ...prev].slice(0, 5))
+    setRecent(prev => [task, ...prev].slice(0, 4))
   }, [])
 
-  const isActive = orbState !== 'idle'
-
   return (
-    <div className="flex flex-col items-center min-h-screen pt-8 pb-16 px-8">
-      {/* Header */}
-      <div className="text-center mb-0 animate-fade-in">
-        <p className="text-xs uppercase tracking-[0.35em] mb-3" style={{ color: 'var(--cc-muted)' }}>
-          Command Center · Delegation
-        </p>
-        <h1 className="text-4xl font-semibold tracking-tight mb-2" style={{ color: 'var(--cc-text)', lineHeight: 1.15 }}>
-          What&apos;s on your mind?
-        </h1>
-        <p className="text-sm" style={{ color: 'var(--cc-muted)' }}>
-          Speak or type — Claude parses, categorizes, and saves everything
-        </p>
-      </div>
-
-      {/* Orb */}
-      <div className="relative my-2">
-        <Orb state={orbState} />
-        <div
-          className="text-center mt-1 text-xs uppercase tracking-[0.2em] transition-all duration-500"
-          style={{
-            color: isActive ? 'var(--cc-cyan)' : 'var(--cc-muted)',
-            textShadow: isActive ? '0 0 12px rgba(0,229,255,0.5)' : 'none',
-            letterSpacing: '0.2em',
-          }}
-        >
-          {STATE_LABELS[orbState]}
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-10">
+      {/* Title → orb → input, grouped tight and centered as one cluster */}
+      <div className="flex flex-col items-center">
+        {/* Header — sits above the canvas (z-10) so it can never be covered. */}
+        <div className="relative z-10 text-center animate-fade-in">
+          <p className="text-xs uppercase tracking-[0.38em] mb-2.5" style={{ color: 'var(--cc-muted)' }}>
+            Command Center
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight" style={{ color: 'var(--cc-text)', lineHeight: 1.15 }}>
+            What&apos;s on your mind?
+          </h1>
         </div>
-      </div>
 
-      {/* Input */}
-      <DelegationInput onOrbStateChange={setOrbState} onTaskAdded={handleTaskAdded} />
+        {/* Orb stage — transparent canvas, sits beneath the heading (z-0) and
+            ignores pointer events. Small negative margin keeps the group tight
+            without dragging the canvas up over the heading. */}
+        <div className="orb-stage relative z-0 -my-2 sm:-my-3 pointer-events-none">
+          <Orb active={active} pulse={pulse} />
+        </div>
+
+        {/* Input — sits directly beneath the orb */}
+        <DelegationInput
+          onActiveChange={setActive}
+          onPulse={() => setPulse(p => p + 1)}
+          onTaskAdded={handleTaskAdded}
+        />
+      </div>
 
       {/* Recent captures */}
       {recent.length > 0 && (
         <div className="mt-8 w-full max-w-xl animate-slide-up">
-          <p className="text-xs uppercase tracking-[0.25em] mb-3 text-center" style={{ color: 'var(--cc-muted)' }}>
+          <p className="text-[10px] uppercase tracking-[0.28em] mb-3 text-center" style={{ color: 'var(--cc-muted)' }}>
             Just Captured
           </p>
           <div className="flex flex-col gap-2">
@@ -73,8 +60,8 @@ export default function DelegationPage() {
                 <div
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{
-                    background: task.type === 'memory' ? '#a78bfa' : 'var(--cc-cyan)',
-                    boxShadow: `0 0 6px ${task.type === 'memory' ? 'rgba(167,139,250,0.8)' : 'rgba(0,229,255,0.8)'}`,
+                    background: task.type === 'memory' ? '#a78bfa' : 'var(--cc-mint)',
+                    boxShadow: `0 0 8px ${task.type === 'memory' ? 'rgba(167,139,250,0.8)' : 'rgba(77,255,195,0.8)'}`,
                   }}
                 />
                 <span className="text-sm flex-1 min-w-0 truncate" style={{ color: 'var(--cc-text)' }}>
@@ -91,7 +78,7 @@ export default function DelegationPage() {
                   {task.client_tag && (
                     <span className="pill-tag text-xs px-2 py-0.5 rounded-full">{task.client_tag}</span>
                   )}
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${task.type === 'memory' ? 'pill-memory' : 'pill-tag'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${task.type === 'memory' ? 'pill-memory' : 'pill-mint'}`}>
                     {task.type}
                   </span>
                 </div>
